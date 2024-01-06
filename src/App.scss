@@ -1,0 +1,20 @@
+.App {
+  max-width: 86rem;
+  margin: 4rem auto;
+}
+
+button {
+  background: none;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  padding: 6px 12px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 2rem;
+  font-weight: inherit;
+}
+
+button:hover {
+  background: #c23866;
+  color: #fff;
+}
