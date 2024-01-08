@@ -2,7 +2,7 @@
   // This defines what 1rem is
   font-size: 62.5%; //1 rem = 10px; 10px/16px = 62.5%
   box-sizing: border-box;
-  font-family: 'Vazirmatn';
+  font-family: 'Vazirmatn' !important;
   font-weight: 200;
 
   line-height: 1.5;
@@ -29,4 +29,8 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: inherit;
+}
+
+button {
+  font-family: 'Vazirmatn' !important;
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import './App.scss';
 
 interface Card {
@@ -6,28 +6,71 @@ interface Card {
   src: string;
 }
 
-const cardImages = [
-  { src: '/img/helmet-1.png' },
-  { src: '/img/potion-1.png' },
-  { src: '/img/ring-1.png' },
-  { src: '/img/scroll-1.png' },
-  { src: '/img/shield-1.png' },
-  { src: '/img/sword-1.png' },
-];
+interface CardImage {
+  src: string;
+}
 
 function App() {
+  const [cardImages, setCardImages] = useState<CardImage[]>([]);
   const [cards, setCards] = useState<Card[]>([]);
   const [turns, setTurns] = useState(0);
+  const [success, setSuccess] = useState(false);
 
-  // shuffle cards
-  const shuffleCards = () => {
-    const shuffledCards = [...cardImages, ...cardImages]
-      .sort(() => Math.random() - 0.5)
-      .map((card, index) => ({ ...card, id: index }));
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/images', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+        });
+        const result = (await response.json()) as CardImage[];
+        setCardImages(result);
+        setSuccess(true);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
 
-    setCards(shuffledCards);
+    fetchImages().catch((error) => {
+      console.error('Failed to fetch images:', error);
+    });
+  }, []);
+
+  const performShuffling = useCallback(() => {
+    const shuffledCards = [...cardImages, ...cardImages];
+
+    // Fisher-Yates Shuffle
+    for (let i = shuffledCards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffledCards[i], shuffledCards[j]] = [
+        shuffledCards[j],
+        shuffledCards[i],
+      ];
+    }
+
+    const cardsWithId = shuffledCards.map((card, index) => ({
+      ...card,
+      id: index,
+    }));
+
+    setCards(cardsWithId);
     setTurns(0);
-  };
+  }, [cardImages]);
+
+  const performShufflingRef = useRef(performShuffling);
+
+  useEffect(() => {
+    performShufflingRef.current = performShuffling;
+  });
+
+  useEffect(() => {
+    if (success) {
+      performShufflingRef.current();
+    }
+  }, [success]);
 
   console.log(cards, turns);
 
@@ -35,7 +78,9 @@ function App() {
     <>
       <div className="App">
         <h1>بازی جادویی</h1>
-        <button onClick={shuffleCards}>شروع مجدد</button>
+        <button onClick={success ? performShuffling : undefined}>
+          شروع مجدد
+        </button>
       </div>
     </>
   );
